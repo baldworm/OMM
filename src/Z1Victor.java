@@ -47,7 +47,8 @@ public class Z1Victor {
         return u_new;
     }
     private static double equation(double x, int i, int j) {
-        return (x - u[i][j+1])/DT + (f(x) - f (u[i+1][j]))/DX;
+        return (u[i+1][j] - u[i][j] + x - u[i][j+1])/DT +
+                (f(u[i+1][j]) - f(u[i][j]) + f(x) - f(u[i][j+1]))/DX;
     }
     private static double d_equation(double x) {
         return 1/DT + df(x)/DX;
