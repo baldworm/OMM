@@ -12,78 +12,79 @@ public class Z1 {
     public static final double T_MIN = 0;
     public static final double T_MAX = 2;
 
-    public static final int N_X = 100;                      // Количество узлов по оси x
-    public static final int N_T = 10000;                      // Количество узлов по оси t
+    public static final int N_X = 80;                      // Количество узлов по оси x
+    public static final int N_T = 80;                      // Количество узлов по оси t
 
     public static final double H_X = (X_MAX - X_MIN)/N_X;   // Шаг по оси x (-1 <= x < 0)
     public static final double H_T = (T_MAX - T_MIN)/N_T;   // Шаг по оси t (t > 0)
-    public static final double EPS = Math.pow(10,-6);       //Точность метода касательных Ньютона (10^-6)
+    public static final double EPS = Math.pow(10,-5);       //Точность метода касательных Ньютона (10^-6)
 
-    public static double[][] u = new double[N_X][N_T];
+    public static double[][] u = new double[N_T][N_X];
 
     public static void main(String[] args) throws IOException {
             /* Задаем граничные и начальные условия */
-        for (int i = 0; i < N_X; i++)
-            u[i][0] = Math.sin(Math.PI * getX(i));
-        for (int j = 0; j < N_T; j++)
-            u[0][j] = 0;
-
+        createBoundConditions();
             /* Метод бегущего счета */
-        for (int j = 1; j < N_T - 1; j++){
-            System.out.println("j = " +j);
-            for (int i = 1; i < N_X - 1; i++){
-                //System.out.println("i = " +i);
-                double f = 1;
-                double df = 1;
-                while (Math.abs(f/df) > EPS){
-                    f = getF(i, j);
-                    df = getDf(i, j);
-                    //System.out.print(u[i+1][j+1]+"\t");
-                    u[i+1][j+1] = u[i+1][j+1] - f/df;
-                    //System.out.println(Math.abs(f/df) +"\t" + f+ "\t" + u[i+1][j+1]);
-                    //try {Thread.sleep(100); } catch (InterruptedException ignored) {}
-                }
-
-            }
-        }
+        solver();
             /* Вывод в файл */
         writeToFile("data.txt");
     }
+    private static void createBoundConditions(){
+        for (int i = 0;i<N_X;i++)
+            u[0][i] = Math.sin(Math.PI*getX(i));
 
+    }
+    private static void solver(){
+        for (int i = 1; i < N_T; i++){
+            System.out.println("i = " +i);
+            for (int j = 1; j < N_X; j++){
+                System.out.println("j = " +j);
+                u[i][j] = solve(i,j);
+            }
+        }
+    }
+    private static double solve(int i, int j){
+        double old = 1, newU = 0;
+        while (Math.abs(old-newU)>EPS){
+            old = newU;
+            newU = old - getF(old,i,j)/getDf(old);
+
+            System.out.println(old+"\t"+newU);
+            try {Thread.sleep(60); } catch (InterruptedException ignored) {}
+        }
+        return newU;
+    }
     private static void writeToFile(String fileName) throws IOException {
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(fileName))){
-            for (int i = 0;i < N_X; i++){
-                for (int j = 0; j < N_T; j++){
+            for (int i = 0;i < N_T; i++){
+                for (int j = 0; j < N_X; j++){
                     bufferedWriter.write(getX(i)+"\t"+getT(j)+"\t"+u[i][j]+"\n");
                 }
             }
         }
     }
 
-
-
-    private static double getDf(int i, int j) {
-        double df;
-        double u1 = u[i+1][j+1];
-        df = 1/(2 * H_T) - 2 * Math.exp(2*u1)/(Math.exp(2*u1)+1) /(2 * H_X);
-        return df;
+    private static double getDf(double x){
+        return 1/ H_T + df(x)/H_X;
+    }
+    private static double df(double u){
+        return -2*Math.exp(2*u)/(1 + Math.exp(2*u));
     }
 
-    private static double getF(int i, int j) {
+    private static double getF(double x,int i, int j){
         double f;
-        f = (u[i][j+1] - u[i][j] + u[i+1][j+1] - u[i+1][j])/(2 * H_T) -
-            (Math.log(Math.exp(2*u[i+1][j]) + 1) - Math.log(Math.exp(2*u[i][j]) + 1) +
-            Math.log(Math.exp(2*u[i+1][j+1]) + 1) - Math.log(Math.exp(2*u[i][j+1])) + 1)/(2 * H_X);
-
-
+        f = (x-u[i-1][j])/H_T + (f(x)-f(u[i][j-1]))/H_X;
         return f;
+
+    }
+    private static double f(double u){
+        return -Math.log(Math.exp(2*u)+1);
     }
 
     private static double getX(int i) {
         return X_MAX - i * H_X;
     }
     private static double getT(int i) {
-        double value =  T_MIN + i * H_T;
-        return (double)Math.round(value * 100000) / 100000;
+        return  T_MIN + i * H_T;
     }
 }
