@@ -1,10 +1,5 @@
 import java.io.*;
 
-/**
- * Используя метод переменных направлений решите краевую задачу
- *
- * Created by bw on 25.05.2015.
- */
 public class Z2 {
     private static final double X = Math.PI;
     private static final double Y = 3;
