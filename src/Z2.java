@@ -23,11 +23,8 @@ public class Z2 {
     private static double[][][] u = new double[NX][NY][NT];
 
     public static void main(String[] args) throws IOException {
-            /* Начальные условия*/
         initial();
-            /* Решение */
         solver();
-            /* Запись в файл */
         writeToFile("dataZ2");
     }
 
@@ -128,8 +125,6 @@ public class Z2 {
             for(int i = 0; i < NX; i++)
                 Umiddle[i][j] = U[i];
         }
-        //delete_factors_field_all(Nx);
-
     }
 
     private static void sweep(double kapa1, double kapa2, double mu1, double mu2, int N){
@@ -146,7 +141,6 @@ public class Z2 {
         for(int n = N-2; n >= 0; n--)
             U[n] = alpha[n+1]*U[n+1] + beta[n+1];
     }
-
 
     private static void bound_conditions(int s) {
         for(int j = 0; j < NY; j++){
@@ -174,7 +168,4 @@ public class Z2 {
         alpha = new double[n];
         beta = new double[n];
     }
-
-
-
 }
