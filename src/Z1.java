@@ -9,7 +9,7 @@ public class Z1 {
 
     private static double[][] u = new double[N_T][N_X];
 
-    private static final double DX = -1. / N_X;
+    private static final double DX = 1. / N_X;
     private static final double DT = 1. / N_T;
 
     public static void main(String[] args) throws IOException {
@@ -20,7 +20,7 @@ public class Z1 {
 
     private static void boundConditions() {
         for (int i = 0; i < N_X; i++)
-            u[0][i] = Math.sin(Math.PI * getX(i));
+            u[0][i] = - Math.sin(Math.PI * getX(i));
 
         for (int i = 0; i < N_T; i++)
             u[i][0] = 0;
@@ -53,11 +53,11 @@ public class Z1 {
     }
 
     private static double f(double x) {
-        return -Math.log(1 + Math.exp(2 * x));
+        return Math.log(1 + Math.exp(2 * x));
     }
 
     private static double df(double x) {
-        return -2 * Math.exp(2 * x) / (1 + Math.exp(2 * x));
+        return 2 * Math.exp(2 * x) / (1 + Math.exp(2 * x));
     }
 
     private static void writeToFile(String fileName) throws IOException {
